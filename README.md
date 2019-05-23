@@ -11,3 +11,5 @@ Follow the instruction on the link below to install Flutter.
 Once installed, either use an IDE (IntelliJ IDEA) or use below Flutter command to run the project. Change directory to this project and run below command.
 
 `flutter run`
+
+You can also run the iOS project from XCode. Within the project, go to ios directory and open Runner.xcworkspace.
