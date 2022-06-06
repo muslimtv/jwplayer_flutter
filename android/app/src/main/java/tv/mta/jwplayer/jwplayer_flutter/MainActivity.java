@@ -2,25 +2,36 @@ package tv.mta.jwplayer.jwplayer_flutter;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import tv.mta.jwplayer.jwplayer_flutter.jwplayer.PlayerViewFactory;
 
 public class MainActivity extends FlutterActivity {
   private PlayerViewFactory playerViewFactory;
-
-  @Override
+/*
+ @Override
   protected void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
-
-    GeneratedPluginRegistrant.registerWith(this);
 
     Registrar registrar = registrarFor("tv.mta.jwplayer/JWPlayerPlugin");
 
     playerViewFactory = new PlayerViewFactory(this, registrar.messenger());
 
     registrar.platformViewRegistry().registerViewFactory("tv.mta.jwplayer/JWPlayerView", playerViewFactory);
+  }
+
+ */
+
+
+  @Override
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    super.configureFlutterEngine(flutterEngine);
+    playerViewFactory = new PlayerViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger());
+    flutterEngine.getPlatformViewsController().getRegistry().registerViewFactory("tv.mta.jwplayer/JWPlayerView", playerViewFactory);
   }
 
   @Override
@@ -42,8 +53,8 @@ public class MainActivity extends FlutterActivity {
   }
 
   @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    playerViewFactory.onConfigurationChange(newConfig);
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
+    playerViewFactory.onConfigurationChange(newConfig);
   }
 }

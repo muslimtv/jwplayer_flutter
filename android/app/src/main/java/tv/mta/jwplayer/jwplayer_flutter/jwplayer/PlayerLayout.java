@@ -4,9 +4,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 
 import com.longtailvideo.jwplayer.JWPlayerView;
 import com.longtailvideo.jwplayer.configuration.PlayerConfig;
@@ -29,20 +30,14 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
     /**
      * Reference to the {@link PlayerConfig}
      */
-    private PlayerConfig playerConfig = new PlayerConfig.Builder().build();
-
-    /**
-     * An instance of our event handling class
-     */
-    private JWEventHandler mEventHandler;
+    private final PlayerConfig playerConfig = new PlayerConfig.Builder().build();
 
     /**
      * App main activity
      */
-    private Activity activity;
+    private final Activity activity;
 
-    private BinaryMessenger messenger;
-    private EventChannel eventChannel;
+    private final BinaryMessenger messenger;
 
     private KeepScreenOnHandler keepScreenOnHandler;
 
@@ -77,9 +72,12 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         /* keep the screen on during playback */
         keepScreenOnHandler = new KeepScreenOnHandler(mPlayerView, this.activity.getWindow());
 
-        mEventHandler = new JWEventHandler(mPlayerView);
+        /*
+         * An instance of our event handling class
+         */
+        JWEventHandler mEventHandler = new JWEventHandler(mPlayerView);
 
-        eventChannel = new EventChannel(
+        EventChannel eventChannel = new EventChannel(
                 messenger,
                 "tv.mta.jwplayer/JWEventHandler",
                 JSONMethodCodec.INSTANCE);

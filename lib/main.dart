@@ -42,7 +42,7 @@ class Player extends StatelessWidget {
     return MediaPlayer(
       true,
       /* auto play */
-      "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8", /* file */
+      "https://content.jwplatform.com/manifests/yp34SRmf.m3u8", /* file */
     );
   }
 }
