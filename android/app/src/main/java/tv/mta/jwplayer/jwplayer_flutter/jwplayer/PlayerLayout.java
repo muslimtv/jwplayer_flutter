@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
@@ -13,14 +14,23 @@ import com.longtailvideo.jwplayer.JWPlayerView;
 import com.longtailvideo.jwplayer.configuration.PlayerConfig;
 import com.longtailvideo.jwplayer.events.FullscreenEvent;
 import com.longtailvideo.jwplayer.events.listeners.VideoPlayerEvents;
+import com.longtailvideo.jwplayer.media.ads.AdBreak;
+import com.longtailvideo.jwplayer.media.ads.ImaAdvertising;
+import com.longtailvideo.jwplayer.media.playlists.PlaylistItem;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.JSONMethodCodec;
 
 public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFullscreenListener {
+
+    private String LOG_TAG =PlayerLayout.class.getName();
+
 
     /**
      * Reference to the {@link JWPlayerView}
@@ -47,21 +57,76 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         this.activity = activity;
 
         this.messenger = messenger;
+        Log.d(LOG_TAG, "constructor int..");
+
+
 
         try {
-
             JSONObject args = (JSONObject) arguments;
+            String file = args.getString("file");
+            Log.d(LOG_TAG, "got file -> " + file);
+            boolean autoPlay = args.getBoolean("autoPlay");
+            Log.d(LOG_TAG, "got autplay -> " + String.valueOf(autoPlay));
+            setPlayerConfig(file,autoPlay);
 
-            setFile(args.getString("file"));
+            //setAutoPlay(args.getBoolean("autoPlay"));
 
-            setAutoPlay(args.getBoolean("autoPlay"));
+            //setFile(args.getString("file"));
 
-        } catch (Exception e) { /* ignore */ }
+            initPlayer();
+
+        } catch (Exception e) {
+            /* ignore */ }
+    }
+
+    private void setPlayerConfig(String file,boolean autoPlay) {
+        ImaAdvertising imaAdvertising = getImaAd();
+        List<PlaylistItem> playlist = getPlaylist(file);
+
+        playerConfig.setPlaylist(playlist);
+        playerConfig.setAdvertising(imaAdvertising);
+        playerConfig.setAutostart(autoPlay);
+    }
+
+    private ImaAdvertising getImaAd() {
+        Log.d(LOG_TAG, "Gettting IMA ad..");
+
+        String adTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+        AdBreak adBreakPre = new AdBreak.Builder()
+                .tag(adTagUrl)
+                .offset("pre")
+                .build();
+
+        List<AdBreak> schedule = new ArrayList<>();
+        schedule.add(adBreakPre);
+        return new ImaAdvertising(schedule);
+    }
+
+    private List<PlaylistItem> getPlaylist(String file) {
+        Log.d(LOG_TAG, "Gettting playlist..");
+
+        PlaylistItem playlistItem = new PlaylistItem.Builder()
+                .file(file)
+                .build();
+
+        List<PlaylistItem> playlist = new ArrayList<>();
+        playlist.add(playlistItem);
+        return playlist;
     }
 
     private void initPlayer() {
+        Log.d(LOG_TAG, "init player..");
+
+        /*
+         * An instance of our event handling class
+         */
 
         mPlayerView = new JWPlayerView(this.activity, playerConfig);
+
+        Log.d(LOG_TAG, "made jwplayerview");
+
+
+        //mPlayerView.setup(playerConfig);
 
         /* handle hiding/showing of ActionBar */
         mPlayerView.addOnFullscreenListener(this);
@@ -72,9 +137,6 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         /* keep the screen on during playback */
         keepScreenOnHandler = new KeepScreenOnHandler(mPlayerView, this.activity.getWindow());
 
-        /*
-         * An instance of our event handling class
-         */
         JWEventHandler mEventHandler = new JWEventHandler(mPlayerView);
 
         EventChannel eventChannel = new EventChannel(
@@ -84,14 +146,15 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
 
         eventChannel.setStreamHandler(mEventHandler);
 
+        Log.d(LOG_TAG, "setting view");
+
+
         this.addView(mPlayerView);
     }
 
     public void setFile(String file) {
 
         playerConfig.setFile(file);
-
-        initPlayer();
     }
 
     public void setAutoPlay(Boolean autoPlay) {

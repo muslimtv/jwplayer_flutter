@@ -30,7 +30,7 @@ class PlayerObserver {
 
       /* onReady */
       case "onReady":
-        int setupTime = event["setupTime"];
+        num setupTime = event["setupTime"];
         break;
 
       /* onBeforePlay */

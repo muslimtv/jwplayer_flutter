@@ -59,4 +59,7 @@ dependencies {
 
     implementation 'com.longtailvideo.jwplayer:jwplayer-core:3.5.1'
     implementation 'com.longtailvideo.jwplayer:jwplayer-common:3.5.1'
+    implementation 'com.longtailvideo.jwplayer:jwplayer-ima:3.5.1'
+    //implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.27.1'
+    //implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 }

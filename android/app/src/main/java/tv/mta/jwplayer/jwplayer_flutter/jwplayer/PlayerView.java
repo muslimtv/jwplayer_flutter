@@ -5,12 +5,15 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 
 public class PlayerView implements PlatformView, MethodChannel.MethodCallHandler {
+
 
     private final PlayerLayout player;
 
@@ -47,14 +50,12 @@ public class PlayerView implements PlatformView, MethodChannel.MethodCallHandler
     }
 
     @Override
-    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-        switch (call.method) {
-            case "dispose":
-                dispose();
-                result.success(true);
-                break;
-            default:
-                result.notImplemented();
+    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+        if ("dispose".equals(call.method)) {
+            dispose();
+            result.success(true);
+        } else {
+            result.notImplemented();
         }
     }
 }

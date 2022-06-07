@@ -3,6 +3,8 @@ package tv.mta.jwplayer.jwplayer_flutter.jwplayer;
 import android.util.Log;
 
 import com.longtailvideo.jwplayer.JWPlayerView;
+import com.longtailvideo.jwplayer.events.AdBreakEndEvent;
+import com.longtailvideo.jwplayer.events.AdBreakStartEvent;
 import com.longtailvideo.jwplayer.events.AdClickEvent;
 import com.longtailvideo.jwplayer.events.AdCompleteEvent;
 import com.longtailvideo.jwplayer.events.AdErrorEvent;
@@ -87,7 +89,10 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
         AdvertisingEvents.OnAdPlayListener,
         AdvertisingEvents.OnAdScheduleListener,
         AdvertisingEvents.OnBeforePlayListener,
-        AdvertisingEvents.OnBeforeCompleteListener, EventChannel.StreamHandler {
+        AdvertisingEvents.OnBeforeCompleteListener,
+        AdvertisingEvents.OnAdBreakStartListener,
+AdvertisingEvents.OnAdBreakEndListener,
+        EventChannel.StreamHandler {
 
     private String TAG = JWEventHandler.class.getName();
 
@@ -135,6 +140,7 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
         jwPlayerView.addOnBeforePlayListener(this);
         jwPlayerView.addOnBeforeCompleteListener(this);
         jwPlayerView.addOnAdScheduleListener(this);
+        jwPlayerView.addOnAdBreakStartListener(this);
     }
 
     @Override
@@ -185,7 +191,9 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
 
             JSONObject message = new JSONObject();
 
-            message.put("name", "onAdError");
+
+
+            message.put("name", "onAdError " + adErrorEvent.getMessage());
 
             eventSink.success(message);
 
@@ -734,21 +742,23 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
 
     @Override
     public void onTime(TimeEvent timeEvent) {
-        Log.d(TAG, "onTime");
+        //Log.d(TAG, "onTime");
 
         try {
 
             JSONObject message = new JSONObject();
 
-            message.put("name", "onTime");
+           // message.put("name", "onTime");
 
-            message.put("duration", timeEvent.getDuration());
+           // message.put("duration", timeEvent.getDuration());
 
-            message.put("position", timeEvent.getPosition());
+            //message.put("position", timeEvent.getPosition());
 
-            eventSink.success(message);
+            //eventSink.success(message);
 
         } catch (Exception e) { /* ignore */ }
+
+
     }
 
     @Override
@@ -760,6 +770,36 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
             JSONObject message = new JSONObject();
 
             message.put("name", "onVisualQuality");
+
+            eventSink.success(message);
+
+        } catch (Exception e) { /* ignore */ }
+    }
+
+    @Override
+    public void onAdBreakStart(AdBreakStartEvent adBreakStartEvent) {
+        Log.d(TAG, "onAdBreakStart");
+
+        try {
+
+            JSONObject message = new JSONObject();
+
+            message.put("name", "onAdBreakStart");
+
+            eventSink.success(message);
+
+        } catch (Exception e) { /* ignore */ }
+    }
+
+    @Override
+    public void onAdBreakEnd(AdBreakEndEvent adBreakEndEvent) {
+        Log.d(TAG, "onAdBreakEnd");
+
+        try {
+
+            JSONObject message = new JSONObject();
+
+            message.put("name", "onAdBreakEnd");
 
             eventSink.success(message);
 
