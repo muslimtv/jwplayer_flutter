@@ -94,11 +94,15 @@ public class JWEventHandler implements VideoPlayerEvents.OnSetupErrorListener,
 AdvertisingEvents.OnAdBreakEndListener,
         EventChannel.StreamHandler {
 
-    private String TAG = JWEventHandler.class.getName();
+    private String TAG = LogTags.AD_TAG;
 
     private EventChannel.EventSink eventSink;
 
+    private JWPlayerView jwPlayerView;
+
     public JWEventHandler(JWPlayerView jwPlayerView) {
+
+        this.jwPlayerView = jwPlayerView;
         // Subscribe to all JW Player events
         jwPlayerView.addOnReadyListener(this);
         jwPlayerView.addOnFirstFrameListener(this);
@@ -157,6 +161,7 @@ AdvertisingEvents.OnAdBreakEndListener,
     public void onAdClick(AdClickEvent adClickEvent) {
         Log.d(TAG, "onAdClick");
 
+        //this.jwPlayerView.play();
         try {
 
             JSONObject message = new JSONObject();
@@ -277,7 +282,7 @@ AdvertisingEvents.OnAdBreakEndListener,
 
     @Override
     public void onAdTime(AdTimeEvent adTimeEvent) {
-        Log.d(TAG, "onAdTime");
+        //Log.d(TAG, "onAdTime");
 
         try {
 

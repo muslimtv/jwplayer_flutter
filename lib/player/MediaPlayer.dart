@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jwplayer_flutter/player/PlayerArguments.dart';
+import 'package:jwplayer_flutter/player/VideoAdConfig.dart';
 
 import 'PlayerObserver.dart';
 
@@ -55,6 +58,22 @@ class MediaPlayerState extends State<MediaPlayer> {
 
       playerObserver.isAutoPlay = widget.autoPlay;
 
+      final List<VideoAdConfig> configs = [
+        VideoAdConfig(
+          "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=",
+          "pre",
+        ),
+        VideoAdConfig(
+          "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=",
+          "post",
+        ),
+        VideoAdConfig(
+          "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=",
+          "00:00:06:000",
+        ),
+      ];
+      jsonEncode(configs);
+
       /* Android */
       if (Platform.isAndroid) {
         playerWidget = AndroidView(
@@ -64,8 +83,9 @@ class MediaPlayerState extends State<MediaPlayer> {
                 () => HorizontalDragGestureRecognizer()))
             ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer())),
           creationParams: {
-            "autoPlay": _isPlaying,
-            "file": widget.file,
+            PlayerArguments.AUTO_PLAY: _isPlaying,
+            PlayerArguments.FILE: widget.file,
+            PlayerArguments.AD_TAGS: configs
           },
           creationParamsCodec: const JSONMessageCodec(),
           onPlatformViewCreated: (viewId) {

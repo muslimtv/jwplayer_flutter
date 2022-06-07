@@ -10,6 +10,8 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.longtailvideo.jwplayer.JWPlayerView;
 import com.longtailvideo.jwplayer.configuration.PlayerConfig;
 import com.longtailvideo.jwplayer.events.FullscreenEvent;
@@ -20,6 +22,7 @@ import com.longtailvideo.jwplayer.media.playlists.PlaylistItem;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +31,6 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.JSONMethodCodec;
 
 public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFullscreenListener {
-
-    private String LOG_TAG =PlayerLayout.class.getName();
-
 
     /**
      * Reference to the {@link JWPlayerView}
@@ -57,53 +57,66 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         this.activity = activity;
 
         this.messenger = messenger;
-        Log.d(LOG_TAG, "constructor int..");
+        Log.d(LogTags.AD_TAG, "constructor int..");
 
 
 
         try {
+            /*
+                JSONObject args = (JSONObject) arguments;
+            String file = args.getString(PlayerArguments.FILE);
+            Log.d(LogTags.AD_TAG, "got file -> " + file);
+            boolean autoPlay = args.getBoolean(PlayerArguments.AUTO_PLAY);
+            Log.d(LogTags.AD_TAG, "got autplay -> " + autoPlay);
+            String jsonStringAdConfigs = args.getString(PlayerArguments.AD_TAGS);
+            Type listType = new TypeToken<List<VideoAdConfig>>(){}.getType();
+            List<VideoAdConfig> videoAdConfigs = new ArrayList<>();
+            if(jsonStringAdConfigs != null){
+                           videoAdConfigs  = new Gson().fromJson(jsonStringAdConfigs,listType);
+
+            }
+
+             */
             JSONObject args = (JSONObject) arguments;
-            String file = args.getString("file");
-            Log.d(LOG_TAG, "got file -> " + file);
-            boolean autoPlay = args.getBoolean("autoPlay");
-            Log.d(LOG_TAG, "got autplay -> " + String.valueOf(autoPlay));
-            setPlayerConfig(file,autoPlay);
-
-            //setAutoPlay(args.getBoolean("autoPlay"));
-
-            //setFile(args.getString("file"));
-
+            PlayerMethodChanellData playerMethodChanellData = PlayerMethodChanellData.createFromMethodChannelObject(args);
+            setPlayerConfig(playerMethodChanellData);
             initPlayer();
 
         } catch (Exception e) {
+            Log.v("erro happend",e.getMessage());
             /* ignore */ }
     }
 
-    private void setPlayerConfig(String file,boolean autoPlay) {
-        ImaAdvertising imaAdvertising = getImaAd();
-        List<PlaylistItem> playlist = getPlaylist(file);
-
+    private void setPlayerConfig( PlayerMethodChanellData playerMethodChanellData) {
+        if(playerMethodChanellData.file == null){
+            throw new NullPointerException();
+        }
+        ImaAdvertising imaAdvertising = getImaAds(playerMethodChanellData.adConfigs);
+        List<PlaylistItem> playlist = getPlaylist(playerMethodChanellData.file);
         playerConfig.setPlaylist(playlist);
         playerConfig.setAdvertising(imaAdvertising);
-        playerConfig.setAutostart(autoPlay);
+        playerConfig.setAutostart(playerMethodChanellData.autoPlay);
     }
 
-    private ImaAdvertising getImaAd() {
-        Log.d(LOG_TAG, "Gettting IMA ad..");
-
-        String adTagUrl = "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
-        AdBreak adBreakPre = new AdBreak.Builder()
-                .tag(adTagUrl)
-                .offset("pre")
-                .build();
+    private ImaAdvertising getImaAds(List<VideoAdConfig> videoAdConfigs) {
+        Log.d(LogTags.AD_TAG, "Gettting IMA ad..");
 
         List<AdBreak> schedule = new ArrayList<>();
-        schedule.add(adBreakPre);
+        for(VideoAdConfig videoAdConfig: videoAdConfigs){
+            if(videoAdConfig.tagUrl == null || videoAdConfig.offset == null){
+                continue;
+            }
+            AdBreak adBreak = new AdBreak.Builder()
+                    .tag(videoAdConfig.tagUrl)
+                    .offset(videoAdConfig.offset)
+                    .build();
+            schedule.add(adBreak);
+        }
+
         return new ImaAdvertising(schedule);
     }
 
     private List<PlaylistItem> getPlaylist(String file) {
-        Log.d(LOG_TAG, "Gettting playlist..");
 
         PlaylistItem playlistItem = new PlaylistItem.Builder()
                 .file(file)
@@ -115,15 +128,12 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
     }
 
     private void initPlayer() {
-        Log.d(LOG_TAG, "init player..");
 
         /*
          * An instance of our event handling class
          */
 
         mPlayerView = new JWPlayerView(this.activity, playerConfig);
-
-        Log.d(LOG_TAG, "made jwplayerview");
 
 
         //mPlayerView.setup(playerConfig);
@@ -145,9 +155,6 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
                 JSONMethodCodec.INSTANCE);
 
         eventChannel.setStreamHandler(mEventHandler);
-
-        Log.d(LOG_TAG, "setting view");
-
 
         this.addView(mPlayerView);
     }
