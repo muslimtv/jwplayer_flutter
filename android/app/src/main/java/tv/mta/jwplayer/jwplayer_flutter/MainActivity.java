@@ -2,6 +2,7 @@ package tv.mta.jwplayer.jwplayer_flutter;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -30,9 +31,11 @@ public class MainActivity extends FlutterActivity {
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     super.configureFlutterEngine(flutterEngine);
+    Log.v("configureFlutterEngige","configure called");
     playerViewFactory = new PlayerViewFactory(this, flutterEngine.getDartExecutor().getBinaryMessenger());
     flutterEngine.getPlatformViewsController().getRegistry().registerViewFactory("tv.mta.jwplayer/JWPlayerView", playerViewFactory);
   }
+
 
   @Override
   protected void onResume() {

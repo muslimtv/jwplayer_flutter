@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.exoplayer2.Player;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -22,8 +25,26 @@ public class PlayerView implements PlatformView, MethodChannel.MethodCallHandler
 
         MethodChannel channel = new MethodChannel(messenger, "tv.mta.jwplayer/JWPlayerView_" + id);
         channel.setMethodCallHandler(this);
+        if(VideoAdManager.instance().playerLayout != null){
+                View actualLayout = VideoAdManager.instance().playerLayout;
+                ViewGroup parentViewGroup = (ViewGroup) actualLayout.getParent();
+                if(parentViewGroup != null){
+                    parentViewGroup.removeView(actualLayout);
+                }
+            player = VideoAdManager.instance().playerLayout;
+        }else{
+            player = new PlayerLayout(context, activity, messenger, args);
+            VideoAdManager.instance().playerLayout = player;
+        }
 
-        player = new PlayerLayout(context, activity, messenger, args);
+
+      /*
+        if(PlayerViewManager.player == null){
+            player = new PlayerLayout(context, activity, messenger, args);
+        }else {
+            player = PlayerViewManager.player;
+        }
+       */
     }
 
 
@@ -35,7 +56,7 @@ public class PlayerView implements PlatformView, MethodChannel.MethodCallHandler
 
     @Override
     public void dispose() {
-        player.onHostDestroy();
+        //player.onHostDestroy();
     }
 
     protected void onPause() {
@@ -44,20 +65,22 @@ public class PlayerView implements PlatformView, MethodChannel.MethodCallHandler
 
     @Override
     public void onFlutterViewAttached(@NonNull View flutterView) {
-        PlatformView.super.onFlutterViewAttached(flutterView);
-        Log.d(LogTags.AD_TAG, "onFlutterViewAttached");
+        if(player != null){
+            PlatformView.super.onFlutterViewAttached(flutterView);
+
+        }
+        Log.d(LogTags.AD_TAG, "onFlutterViewAttached, player " + String.valueOf(player));
 
     }
 
     @Override
     public void onFlutterViewDetached() {
-        PlatformView.super.onFlutterViewDetached();
+        //PlatformView.super.onFlutterViewDetached();
         Log.d(LogTags.AD_TAG, "onFlutterViewDetached");
     }
 
     protected void onResume() {
         Log.d(LogTags.AD_TAG, "onResume");
-
         player.onHostResume();
     }
 

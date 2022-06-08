@@ -3,6 +3,9 @@ package tv.mta.jwplayer.jwplayer_flutter.jwplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.JSONMessageCodec;
@@ -25,9 +28,20 @@ public class PlayerViewFactory extends PlatformViewFactory {
 
     @Override
     public PlatformView create(Context context, int id, Object args) {
+        Log.v("view usage",String.valueOf(playerView));
+
+    /*
+        if (playerView != null) {
+            View actualPlayerView = playerView.getView();
+            ViewGroup parentViewGroup = (ViewGroup) actualPlayerView.getParent();
+            if(parentViewGroup != null){
+                parentViewGroup.removeView(actualPlayerView);
+            }
+            return playerView;
+        }
+    */
 
         playerView = new PlayerView(context, activity, id, messenger, args);
-
         return playerView;
     }
 

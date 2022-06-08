@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:rxdart/subjects.dart';
 
 class PlayerObserver {
   static final PlayerObserver _instance = PlayerObserver(
@@ -17,6 +18,13 @@ class PlayerObserver {
 
   bool isAutoPlay = false;
 
+  final PublishSubject<bool> _miniplayerPlaying = PublishSubject();
+  Stream<bool> get miniplayerPlayingStream => _miniplayerPlaying.stream;
+
+  onMiniplayerDispose() {
+    //_miniplayerPlaying.close();
+  }
+
   void listen(Function firstFrameCallback, Function playerErrorCallback) async {
     onFirstFrameCallback = firstFrameCallback;
     onPlayerErrorCallback = playerErrorCallback;
@@ -25,12 +33,21 @@ class PlayerObserver {
 
   void processEvent(dynamic event) async {
     String eventName = event["name"];
+    print('Event received -> $eventName');
 
     switch (eventName) {
 
       /* onReady */
       case "onReady":
         num setupTime = event["setupTime"];
+        break;
+
+      case "onAdTime":
+        _miniplayerPlaying.add(true);
+        break;
+      case "onTime":
+        print('miniplayer');
+        _miniplayerPlaying.add(true);
         break;
 
       /* onBeforePlay */

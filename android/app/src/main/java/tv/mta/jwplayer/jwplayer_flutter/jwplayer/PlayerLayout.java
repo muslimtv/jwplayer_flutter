@@ -59,28 +59,11 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         this.messenger = messenger;
         Log.d(LogTags.AD_TAG, "constructor int..");
 
-
-
         try {
-            /*
-                JSONObject args = (JSONObject) arguments;
-            String file = args.getString(PlayerArguments.FILE);
-            Log.d(LogTags.AD_TAG, "got file -> " + file);
-            boolean autoPlay = args.getBoolean(PlayerArguments.AUTO_PLAY);
-            Log.d(LogTags.AD_TAG, "got autplay -> " + autoPlay);
-            String jsonStringAdConfigs = args.getString(PlayerArguments.AD_TAGS);
-            Type listType = new TypeToken<List<VideoAdConfig>>(){}.getType();
-            List<VideoAdConfig> videoAdConfigs = new ArrayList<>();
-            if(jsonStringAdConfigs != null){
-                           videoAdConfigs  = new Gson().fromJson(jsonStringAdConfigs,listType);
-
-            }
-
-             */
             JSONObject args = (JSONObject) arguments;
             PlayerMethodChanellData playerMethodChanellData = PlayerMethodChanellData.createFromMethodChannelObject(args);
             setPlayerConfig(playerMethodChanellData);
-            initPlayer();
+            initPlayer(playerMethodChanellData.seek);
 
         } catch (Exception e) {
             Log.v("erro happend",e.getMessage());
@@ -127,14 +110,13 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
         return playlist;
     }
 
-    private void initPlayer() {
+    private void initPlayer(double seek) {
 
         /*
          * An instance of our event handling class
          */
 
         mPlayerView = new JWPlayerView(this.activity, playerConfig);
-
 
         //mPlayerView.setup(playerConfig);
 
@@ -155,7 +137,7 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
                 JSONMethodCodec.INSTANCE);
 
         eventChannel.setStreamHandler(mEventHandler);
-
+        mPlayerView.seek(seek);
         this.addView(mPlayerView);
     }
 
@@ -219,6 +201,10 @@ public class PlayerLayout extends FrameLayout implements VideoPlayerEvents.OnFul
     }
 
     public void onHostResume() {
+        Log.d(LogTags.AD_TAG, "onHostResume");
+        if (VideoAdManager.instance().isPlayingAd) {
+            mPlayerView.play();
+        }
 
         try {
 

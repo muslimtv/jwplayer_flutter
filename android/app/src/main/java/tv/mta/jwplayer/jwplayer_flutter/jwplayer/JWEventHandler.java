@@ -100,6 +100,7 @@ AdvertisingEvents.OnAdBreakEndListener,
 
     private JWPlayerView jwPlayerView;
 
+
     public JWEventHandler(JWPlayerView jwPlayerView) {
 
         this.jwPlayerView = jwPlayerView;
@@ -176,7 +177,7 @@ AdvertisingEvents.OnAdBreakEndListener,
     @Override
     public void onAdComplete(AdCompleteEvent adCompleteEvent) {
         Log.d(TAG, "onAdComplete");
-
+        VideoAdManager.instance().isPlayingAd = false;
         try {
 
             JSONObject message = new JSONObject();
@@ -238,7 +239,7 @@ AdvertisingEvents.OnAdBreakEndListener,
     @Override
     public void onAdPlay(AdPlayEvent adPlayEvent) {
         Log.d(TAG, "onAdPlay");
-
+        VideoAdManager.instance().isPlayingAd = true;
         try {
 
             JSONObject message = new JSONObject();
@@ -678,7 +679,6 @@ AdvertisingEvents.OnAdBreakEndListener,
     @Override
     public void onReady(ReadyEvent readyEvent) {
         Log.d(TAG, "onReady");
-
         try {
 
             JSONObject message = new JSONObject();
@@ -753,13 +753,13 @@ AdvertisingEvents.OnAdBreakEndListener,
 
             JSONObject message = new JSONObject();
 
-           // message.put("name", "onTime");
+            message.put("name", "onTime");
 
-           // message.put("duration", timeEvent.getDuration());
+            message.put("duration", timeEvent.getDuration());
 
-            //message.put("position", timeEvent.getPosition());
+            message.put("position", timeEvent.getPosition());
 
-            //eventSink.success(message);
+            eventSink.success(message);
 
         } catch (Exception e) { /* ignore */ }
 
